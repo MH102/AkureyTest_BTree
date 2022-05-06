@@ -20,7 +20,8 @@ public class BTree {
  
   public class BNode {
     int occupiedKeys;
-    int key[] = new int[orderM];
+    int height;
+    int keys[] = new int[orderM];
     BNode subtrees[] = new BNode[orderM+1];
     boolean isLeaf = true;
   }
@@ -30,6 +31,8 @@ public class BTree {
     this.orderM = this.minDegree * 2 - 1;
     this.root = new BNode();
     this.root.occupiedKeys = 0;
+    this.root.height = 0;
+    this.height = 0;
     this.root.isLeaf = true;
   }
   
@@ -46,15 +49,18 @@ public class BTree {
             newBNode.occupiedKeys = 0;
             // Set old root as new root's first child
             newBNode.subtrees[0] = tRoot;
+            tRoot.height = 1;
+            newBNode.height = 0;
             // Split old root
-            splitChild(newBNode, 0, tRoot);
+            this.splitChild(newBNode, 0, tRoot);
             // Insert key into new root
-            insertUnfilled(newBNode, key);
+            this.insertUnfilled(newBNode, key);
         } 
         else {
             // Insert key into current root
-            insertUnfilled(tRoot, key);
+            this.insertUnfilled(tRoot, key);
         }
+        this.count++;
     }
   
     private void insertUnfilled(BNode bNode, int key) {
@@ -63,18 +69,18 @@ public class BTree {
         // If the node doesn't have any children
         if (bNode.isLeaf) {
             // Search for position where the insert key is greater or equal to the node key
-            for (index = bNode.occupiedKeys - 1; index >= 0 && key < bNode.key[index]; index--)
+            for (index = bNode.occupiedKeys - 1; index >= 0 && key < bNode.keys[index]; index--)
                 // Shift keys to the right
-                bNode.key[index + 1] = bNode.key[index];
+                bNode.keys[index + 1] = bNode.keys[index];
             // Insert key into position
-            bNode.key[index + 1] = key;
+            bNode.keys[index + 1] = key;
             // Increment key count
             bNode.occupiedKeys = bNode.occupiedKeys + 1;
         }
         // If the node has children
         else {
             // Search for position where the insert key is greater or equal to the node key
-            for (index = bNode.occupiedKeys - 1; index >= 0 && key < bNode.key[index]; index--){
+            for (index = bNode.occupiedKeys - 1; index >= 0 && key < bNode.keys[index]; index--){
             } 
             // Child position for key isnert
             index++;
@@ -82,28 +88,33 @@ public class BTree {
             BNode child = bNode.subtrees[index];
             // If child is full
             if (child.occupiedKeys == this.orderM) {
+                // Update height
                 // Split the child
-                splitChild(bNode, index, child);
+                this.splitChild(bNode, index, child);
                 // If new key at index is lower or equal to the insert key
-                if (key > bNode.key[index]) {
+                if (key > bNode.keys[index]) {
                     // Change the index to the correct position
                     index++;
                 }
             }
             // Insert key into child at correct position
-            insertUnfilled(bNode.subtrees[index], key);
+            this.insertUnfilled(bNode.subtrees[index], key);
         }
     }
 
     private void splitChild(BNode bNode, int nodeIndex, BNode mainChild) {
         // Create new node as new child for bNode
         BNode newBNode = new BNode();
+        newBNode.height = bNode.height+1;
+        if(newBNode.height>this.height){
+            this.height = newBNode.height;
+        }
         newBNode.isLeaf = mainChild.isLeaf;
         // New node will have minDegree-1 of mainChilds keys
         newBNode.occupiedKeys = this.minDegree - 1;
         // Pass left keys from mainChild to the new node (excluding minDegree-1)
         for (int keyIndex = 0; keyIndex < this.minDegree - 1; keyIndex++) {
-            newBNode.key[keyIndex] = mainChild.key[keyIndex + this.minDegree];
+            newBNode.keys[keyIndex] = mainChild.keys[keyIndex + this.minDegree];
         }
         // If mainChild has children
         if (!mainChild.isLeaf) {
@@ -122,18 +133,19 @@ public class BTree {
         bNode.subtrees[nodeIndex + 1] = newBNode;
         // Shift bNode's keys to the right, in order to insert mainChild's leftover key
         for (int keyIndex = bNode.occupiedKeys - 1; keyIndex >= nodeIndex; keyIndex--) {
-            bNode.key[keyIndex + 1] = bNode.key[keyIndex];
+            bNode.keys[keyIndex + 1] = bNode.keys[keyIndex];
         }
         // Insert mainChild's leftover key into bNode
-        bNode.key[nodeIndex] = mainChild.key[minDegree - 1];
+        bNode.keys[nodeIndex] = mainChild.keys[minDegree - 1];
         // Increase bNode's key count
         bNode.occupiedKeys = bNode.occupiedKeys + 1;
     }
+    
     private void printTree(BNode bNode, int height) {
         assert (bNode == null);
         System.out.print("Node Height - " + height + " | Key Count - " + bNode.occupiedKeys + "\n");
         for (int index = 0; index < bNode.occupiedKeys; index++) {
-            System.out.print(bNode.key[index] + " ");
+            System.out.print(bNode.keys[index] + " ");
         }
         System.out.println();
         if (!bNode.isLeaf) {
@@ -142,15 +154,41 @@ public class BTree {
             }
         }
     }
+
+    private int countNodes(BNode bNode, int nodeCount){
+        if(bNode==null){
+            return 0;
+        }
+        if (!bNode.isLeaf) {
+            for (int index = 0; index < bNode.occupiedKeys + 1; index++) {
+                nodeCount = this.countNodes(bNode.subtrees[index],nodeCount);
+            }
+        }
+        return nodeCount+1;
+    }
+    
+    public int countNodes(){
+        return this.countNodes(this.root,0);
+    }
+    
     public void print() {
         this.printTree(this.root, 0);
     }
+    
+    public BMatrix toMatrix(){
+        int columns = this.countNodes();
+        BMatrix matrix = new BMatrix(columns,this.orderM);
+        matrix.generate(this.root);
+        return matrix;
+    }
 
     public static void main(String[] args) {
-        BTree b = new BTree(3);
-        for(int index = 0;index<21;index++){
+        BTree b = new BTree(2);
+        for(int index = 0;index<10;index++){
             b.insert(index);
         }
         b.print();
+        BMatrix bm = b.toMatrix();
+        bm.print();
     }
 }
