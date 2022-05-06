@@ -162,22 +162,6 @@ public class BTree {
             }
         }
     }
-
-    private int countNodes(BNode bNode, int nodeCount){
-        if(bNode==null){
-            return 0;
-        }
-        if (!bNode.isLeaf) {
-            for (int index = 0; index < bNode.occupiedKeys + 1; index++) {
-                nodeCount = this.countNodes(bNode.subtrees[index],nodeCount);
-            }
-        }
-        return nodeCount+1;
-    }
-    
-    public int countNodes(){
-        return this.countNodes(this.root,0);
-    }
     
     public void print() {
         this.printTree(this.root, 0);

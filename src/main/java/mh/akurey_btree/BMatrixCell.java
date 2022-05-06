@@ -22,6 +22,7 @@ public class BMatrixCell {
             case 1 -> cellArr = new ArrayList<BNode>();
             // If we are storing key brothers
             case 2 -> cellArr = new ArrayList<Integer>();
+            // If we are storing a node key
             default -> this.type = 0;
         }    
     }
