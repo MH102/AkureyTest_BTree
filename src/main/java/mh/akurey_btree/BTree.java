@@ -24,6 +24,12 @@ public class BTree {
     int keys[] = new int[orderM];
     BNode subtrees[] = new BNode[orderM+1];
     boolean isLeaf = true;
+    
+    public void print(){
+        for(int index = 0; index < this.occupiedKeys;index++)
+            System.out.print(this.keys[index]+" ");
+    }
+    
   }
 
   public BTree(int pMinDegree) {
@@ -142,7 +148,9 @@ public class BTree {
     }
     
     private void printTree(BNode bNode, int height) {
-        assert (bNode == null);
+        if(bNode==null){
+            return;
+        }
         System.out.print("Node Height - " + height + " | Key Count - " + bNode.occupiedKeys + "\n");
         for (int index = 0; index < bNode.occupiedKeys; index++) {
             System.out.print(bNode.keys[index] + " ");
@@ -176,19 +184,20 @@ public class BTree {
     }
     
     public BMatrix toMatrix(){
-        int columns = this.countNodes();
-        BMatrix matrix = new BMatrix(columns,this.orderM);
+        BMatrix matrix = new BMatrix(this.count);
         matrix.generate(this.root);
         return matrix;
     }
 
     public static void main(String[] args) {
-        BTree b = new BTree(2);
-        for(int index = 0;index<10;index++){
-            b.insert(index);
+        BTree bTree = new BTree(2);
+        for(int index = 0;index<11;index++){
+            bTree.insert(index);
         }
-        b.print();
-        BMatrix bm = b.toMatrix();
-        bm.print();
+        // bTree.print();
+        BMatrix bMatrix = bTree.toMatrix();
+        //bMatrix.print();
+        bMatrix.queryKey(5);
+        bMatrix.queryKey(7);
     }
 }
