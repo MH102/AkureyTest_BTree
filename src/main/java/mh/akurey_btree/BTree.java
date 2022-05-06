@@ -42,7 +42,7 @@ public class BTree {
     this.root.isLeaf = true;
   }
   
-    public void insert(final int key) {
+    public void insert(int key) {
         // Save current root
         BNode tRoot = this.root;
         // If root is full
@@ -174,14 +174,16 @@ public class BTree {
     }
 
     public static void main(String[] args) {
+        // Initialize with 2: Max childs = 4, Max keys per node = 3
         BTree bTree = new BTree(2);
-        for(int index = 0;index<11;index++){
+        for(int index = 0;index<12;index++){
             bTree.insert(index);
         }
-        // bTree.print();
+        bTree.print();
         BMatrix bMatrix = bTree.toMatrix();
-        //bMatrix.print();
+        bMatrix.print();
         bMatrix.queryKey(5);
         bMatrix.queryKey(7);
+        bMatrix.queryKey(9);
     }
 }

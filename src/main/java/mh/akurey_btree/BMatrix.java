@@ -62,11 +62,17 @@ public class BMatrix {
                 }
             }
             
+            
+            /* Previous version: check queryKey for more info.
+            // this.bMatrix[0][this.colCount] = bMCellKey;
+            // this.bMatrix[1][this.colCount] = bMCellTrees;
+            // this.bMatrix[2][this.colCount] = bMCellKeyBrothers;
+            */
             // Assign each cell object to corresponding pos in matrix
-            this.bMatrix[0][this.colCount] = bMCellKey;
-            this.bMatrix[1][this.colCount] = bMCellTrees;
-            this.bMatrix[2][this.colCount] = bMCellKeyBrothers;
-            // Set to next column for next key
+            this.bMatrix[0][bNode.keys[index]] = bMCellKey;
+            this.bMatrix[1][bNode.keys[index]] = bMCellTrees;
+            this.bMatrix[2][bNode.keys[index]] = bMCellKeyBrothers;
+            
             this.colCount++;
         }
         if (!bNode.isLeaf) {
@@ -79,7 +85,16 @@ public class BMatrix {
     }
     
     public void queryKey(int pKey){
+        // New version: constant time, but requires key to match column index in matrix
+        System.out.println("Query result for key " + pKey + ": ");
+        if(pKey < this.columns){
+            this.bMatrix[1][pKey].print();
+        }
+        else{
+            System.out.println("No such key exists");
+        }
         
+        /* Previous version: not constant time but doesn't require key to match column index
         System.out.println("Query result for key " + pKey + ": ");
         // Searches for pKey on first row
         for(int index = 0; index < this.columns; index++){
@@ -92,7 +107,9 @@ public class BMatrix {
         }
         // If the key doesn't exist
         System.out.println("No such key was found");
+        */
     }
+    
     
     public void print(){
         for(int index = 0; index < this.columns;index++){
